@@ -14,7 +14,6 @@ import {
   Smartphone,
   Users,
   Bot,
-  Upload,
   Award,
 } from "lucide-react";
 
@@ -151,7 +150,6 @@ export default function App() {
   const [currentSkillIndex, setCurrentSkillIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   /* ------------------------------------------------------------------
    * عرض المهارات: مهارة واحدة تظهر ثم تختفي ويأتي دور التي بعدها
@@ -233,21 +231,6 @@ export default function App() {
     }
   };
 
-  const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setAudioSrc(url);
-      if (audioRef.current) {
-        audioRef.current.src = url;
-        audioRef.current
-          .play()
-          .then(() => setIsPlaying(true))
-          .catch(console.error);
-      }
-    }
-  };
-
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
@@ -284,15 +267,6 @@ export default function App() {
         onPause={() => setIsPlaying(false)}
       />
 
-      {/* Hidden Audio File Input */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        accept="audio/*"
-        onChange={handleAudioUpload}
-        className="hidden"
-      />
-
       {/* Background Video — لا يتأثر بالمربع: مثبّت بالكامل خلف كل شيء */}
       <video
         ref={videoRef}
@@ -308,7 +282,7 @@ export default function App() {
       <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-black/50 via-transparent to-black/60 z-[1]" />
 
       {/* Content Wrapper */}
-      <div className="relative z-10 w-full max-w-7xl px-3 sm:px-6 lg:px-8 flex-1 flex flex-col pt-4 md:pt-10 pb-24 sm:pb-10">
+      <div className="relative z-10 w-full max-w-7xl px-3 sm:px-6 lg:px-8 flex-1 flex flex-col pt-4 md:pt-10 pb-6 sm:pb-10">
         {/* Top Header */}
         <header className="w-full flex items-center justify-between py-4">
           <div className="flex items-center gap-3">
@@ -333,7 +307,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Sound Controls */}
+          {/* الصوت + تواصل — أعلى اليمين مقابل الشعار */}
           <div className="flex items-center gap-2">
             <button
               onClick={toggleSound}
@@ -352,14 +326,23 @@ export default function App() {
               )}
             </button>
 
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              aria-label="Upload Custom Audio"
-              className="liquid-glass text-white/60 hover:text-white p-2.5 rounded-full transition-all cursor-pointer backdrop-blur-md flex items-center justify-center hover:bg-white/10"
-              title="تغيير / إدراج ملف صوت خاص بك"
+            {/* زر "تواصل" أعلى اليمين مقابل K DESIGNER — يقود لواتساب */}
+            <motion.a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="تواصل معي عبر واتساب"
+              title="تواصل"
+              dir="rtl"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6, duration: 0.4, ease: "easeOut" }}
+              className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-white font-medium text-xs sm:text-sm shadow-lg shadow-emerald-700/40 ring-1 ring-white/20 hover:ring-emerald-300/60 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+              style={{ background: "linear-gradient(135deg, #10b981 0%, #047857 100%)" }}
             >
-              <Upload size={14} />
-            </button>
+              <WhatsAppIcon size={14} className="text-white" />
+              <span>تواصل</span>
+            </motion.a>
           </div>
         </header>
 
@@ -542,33 +525,6 @@ export default function App() {
         </motion.footer>
       </div>
 
-      {/* ==============================================================
-       * زر "تواصل" ثابت وبارز — بديل زر "للتواصل معي عبر" المحذوف
-       * يقود مباشرة إلى وسيلة التواصل المحددة (واتساب)
-       * ============================================================== */}
-      <motion.a
-        href={WHATSAPP_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="تواصل معي عبر واتساب"
-        title="تواصل"
-        dir="rtl"
-        initial={{ opacity: 0, y: 24, scale: 0.85 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ delay: 1.2, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-        className="group fixed bottom-4 left-4 sm:bottom-7 sm:left-7 z-50 flex items-center gap-2 sm:gap-2.5 rounded-full px-3 py-2.5 sm:px-4 sm:py-3 text-white font-medium text-sm sm:text-base shadow-2xl shadow-emerald-700/40 ring-1 ring-white/20 hover:ring-emerald-300/60 backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
-        style={{ background: "linear-gradient(135deg, #10b981 0%, #047857 100%)" }}
-      >
-        <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
-          <span
-            className="absolute inset-0 rounded-full bg-white/40 animate-ping"
-            style={{ animationDuration: "2.4s" }}
-            aria-hidden="true"
-          />
-          <WhatsAppIcon size={16} className="relative text-white" />
-        </span>
-        <span>تواصل</span>
-      </motion.a>
     </main>
   );
 }
