@@ -141,8 +141,10 @@ function WhatsAppIcon({
 
 /**
  * عنوان بأسلوب إعلانات الأفلام (trailer-style) ليلفت النظر فورًا:
- * - الدخول: الحروف تتقارب من تباعد واسع + انقشاع ضبابي + صعود متتابع حرفًا حرفًا.
- * - الاستمرار: لمعة ضوئية تعبر النص ذهابًا وإيابًا + توهّج نابض (CSS فقط في index.css).
+ * - الدخول: تكبير + تقارب الحروف من تباعد واسع + انقشاع ضبابي + انقلاب
+ *   ثلاثي الأبعاد لكل حرف على حدة، ثم خط ضوئي يُرسم تحت الاسم.
+ * - الاستمرار: شعاع لمعة ساخن يعبر النص + توهّج نابض (CSS فقط في index.css).
+ * - تفاعل: تكبير خفيف عند مرور المؤشر فوق الاسم.
  */
 function CinematicBrand() {
   const letters = "K DESINGER".split("");
@@ -150,21 +152,23 @@ function CinematicBrand() {
     <motion.span
       dir="ltr"
       aria-label="K DESINGER"
-      className="brand-cinematic text-base sm:text-lg"
-      initial={{ opacity: 0, letterSpacing: "0.5em", filter: "blur(8px)" }}
-      animate={{ opacity: 1, letterSpacing: "0.12em", filter: "blur(0px)" }}
-      transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+      className="brand-cinematic text-lg sm:text-2xl"
+      initial={{ opacity: 0, letterSpacing: "0.6em", filter: "blur(10px)", scale: 1.18 }}
+      animate={{ opacity: 1, letterSpacing: "0.1em", filter: "blur(0px)", scale: 1 }}
+      transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ scale: 1.04, transition: { duration: 0.25, ease: "easeOut" } }}
     >
       {letters.map((ch, i) => (
         <motion.span
           key={`${ch}-${i}`}
           aria-hidden="true"
           className="inline-block"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
+          style={{ transformPerspective: 600 }}
+          initial={{ opacity: 0, y: 24, rotateX: -90 }}
+          animate={{ opacity: 1, y: 0, rotateX: 0 }}
           transition={{
-            delay: 0.2 + i * 0.06,
-            duration: 0.7,
+            delay: 0.25 + i * 0.07,
+            duration: 0.8,
             ease: [0.16, 1, 0.3, 1],
           }}
         >
@@ -334,11 +338,19 @@ export default function App() {
             </div>
             <div className="flex flex-col">
               <CinematicBrand />
+              {/* خط ضوئي يُرسم تحت الاسم بعد اكتمال الدخول */}
+              <motion.span
+                aria-hidden="true"
+                className="brand-underline"
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={{ scaleX: 1, opacity: 1 }}
+                transition={{ delay: 1.5, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              />
               <motion.span
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.1, duration: 0.6, ease: "easeOut" }}
-                className="text-[10px] sm:text-xs uppercase tracking-widest text-white/50"
+                transition={{ delay: 1.7, duration: 0.6, ease: "easeOut" }}
+                className="text-[10px] sm:text-xs uppercase tracking-widest text-white/50 mt-1"
               >
                 Creative STUDIO
               </motion.span>

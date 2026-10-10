@@ -67,45 +67,69 @@
 }
 
 /* ---------------------------------------------------------------
-   الشعار السينمائي: تدرّج لامع يعبر النص + توهّج نابض باستمرار
+   الشعار السينمائي: شعاع لمعة ساخن يعبر النص + توهّج نابض قوي
    --------------------------------------------------------------- */
 .brand-cinematic {
   display: inline-block;
-  font-weight: 700;
+  font-weight: 800;
+  line-height: 1.2;
   background: linear-gradient(
     100deg,
-    #ffffff 25%,
-    #c4b5fd 42%,
-    #67e8f9 50%,
-    #c4b5fd 58%,
-    #ffffff 75%
+    #e0e7ff 12%,
+    #a78bfa 32%,
+    #ffffff 45%,
+    #ffffff 52%,
+    #67e8f9 58%,
+    #a78bfa 68%,
+    #e0e7ff 88%
   );
-  background-size: 250% 100%;
+  background-size: 300% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
   animation:
-    brand-sheen 5.5s ease-in-out infinite,
-    brand-glow 3.2s ease-in-out infinite;
+    brand-sheen 4s ease-in-out infinite,
+    brand-glow 2.8s ease-in-out infinite;
 }
 @keyframes brand-sheen {
   0%,
   100% {
-    background-position: 110% 0;
+    background-position: 115% 0;
   }
   50% {
-    background-position: -10% 0;
+    background-position: -15% 0;
   }
 }
 @keyframes brand-glow {
   0%,
   100% {
-    text-shadow: 0 0 14px rgba(139, 92, 246, 0.25);
+    text-shadow:
+      0 0 10px rgba(139, 92, 246, 0.2),
+      0 0 34px rgba(139, 92, 246, 0.12);
   }
   50% {
-    text-shadow: 0 0 26px rgba(103, 232, 249, 0.45);
+    text-shadow:
+      0 0 22px rgba(103, 232, 249, 0.55),
+      0 0 60px rgba(103, 232, 249, 0.25);
   }
+}
+/* خط ضوئي تحت الاسم بأسلوب عناوين الأفلام */
+.brand-underline {
+  display: block;
+  height: 2px;
+  margin-top: 3px;
+  border-radius: 9999px;
+  transform-origin: left center;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #a78bfa 25%,
+    #67e8f9 50%,
+    #a78bfa 75%,
+    transparent
+  );
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.65);
 }
 @media (prefers-reduced-motion: reduce) {
   .brand-cinematic {
