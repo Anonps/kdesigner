@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { motion, useInView } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Music2,
   Facebook,
@@ -22,7 +22,7 @@ import {
  * ثوابت عامة
  * ================================================================ */
 
-/** وسيلة التواصل المحددة (واتساب) — يقود إليها زر "تواصل" وقسم البطل */
+/** وسيلة التواصل المحددة (واتساب) — يقود إليها زر "تواصل" العائم */
 const WHATSAPP_URL = "https://wa.me/966557733121";
 
 /**
@@ -38,6 +38,9 @@ const BACKGROUND_AUDIO_URL =
 /** مستوى الصوت الافتراضي للخلفية الصوتية (0 → 1) — يمكن تعديله هنا */
 const BACKGROUND_VOLUME = 0.5;
 
+/** مدة عرض المهارة قبل اختفائها والانتقال للتالية (ميلي ثانية) */
+const SKILL_INTERVAL = 4500;
+
 /* ================================================================
  * البيانات
  * ================================================================ */
@@ -47,12 +50,10 @@ type Skill = {
   title: string;
   description: string;
   icon: typeof Sparkles;
-  /** نسبة إتقان المهارة تُستخدم في شريط التقدم والعدّاد */
-  level: number;
-  /** لون بداية وتدرج شريط التقدم */
+  /** لون بداية وتدرج أيقونة المهارة وشريط التقدم */
   color: string;
   color2: string;
-  /** توهّج داخلي يظهر عند المرور على البطاقة */
+  /** توهّج خلف المربع ينطبق على لون المهارة الحالية */
   glow: string;
 };
 
@@ -62,7 +63,6 @@ const skills: Skill[] = [
     title: "تصميم صفحات ويب حديثة",
     description: "واجهات راقية مستوحاة من Apple وStripe تبرز هوية علامتك.",
     icon: Sparkles,
-    level: 98,
     color: "#6366f1",
     color2: "#8b5cf6",
     glow: "rgba(99, 102, 241, 0.3)",
@@ -72,7 +72,6 @@ const skills: Skill[] = [
     title: "تطوير مواقع احترافية",
     description: "أداء سريع وتجربة سلسة.",
     icon: Code2,
-    level: 95,
     color: "#a855f7",
     color2: "#c084fc",
     glow: "rgba(168, 85, 247, 0.3)",
@@ -82,7 +81,6 @@ const skills: Skill[] = [
     title: "إدارة مواقع بشكل احترافي",
     description: "متابعة وتحديث وحماية وتطوير مستمر.",
     icon: ShieldCheck,
-    level: 92,
     color: "#3b82f6",
     color2: "#60a5fa",
     glow: "rgba(59, 130, 246, 0.3)",
@@ -92,7 +90,6 @@ const skills: Skill[] = [
     title: "توافق كامل",
     description: "تناسق مثالي على الجوال والتابلت والحاسوب.",
     icon: Smartphone,
-    level: 97,
     color: "#ec4899",
     color2: "#f472b6",
     glow: "rgba(236, 72, 153, 0.3)",
@@ -102,7 +99,6 @@ const skills: Skill[] = [
     title: "تجربة مستخدم احترافية",
     description: "هندسة رحلات العملاء لتقليل الخطوات وزيادة الأرباح.",
     icon: Users,
-    level: 90,
     color: "#f59e0b",
     color2: "#fbbf24",
     glow: "rgba(245, 158, 11, 0.3)",
@@ -112,7 +108,6 @@ const skills: Skill[] = [
     title: "ذكاء اصطناعي مخصص",
     description: "وكلاء محادثة ذكية ومؤتمتة لخدمة العملاء والبيع.",
     icon: Bot,
-    level: 88,
     color: "#10b981",
     color2: "#34d399",
     glow: "rgba(16, 185, 129, 0.3)",
@@ -123,7 +118,7 @@ const skills: Skill[] = [
  * مكوّنات مساعدة
  * ================================================================ */
 
-/** أيقونة واتساب — تُستخدم في قسم البطل وزر "تواصل" العائم */
+/** أيقونة واتساب — تُستخدم في زر "تواصل" العائم */
 function WhatsAppIcon({
   size = 24,
   className,
@@ -146,111 +141,6 @@ function WhatsAppIcon({
   );
 }
 
-/**
- * بطاقة مهارة واحدة:
- * - تظهر بحركة خفيفة عند التمرير إليها (whileInView).
- * - عدّاد متحرك للنسبة (98% ...) يبدأ لحظة ظهور البطاقة.
- * - شريط تقدم يمتلئ حتى نسبة الإتقان مع لمعة مستمرة.
- */
-function SkillCard({ skill, index }: { skill: Skill; index: number }) {
-  const cardRef = useRef<HTMLElement>(null);
-  const isInView = useInView(cardRef, { once: true, amount: 0.25 });
-  const [displayLevel, setDisplayLevel] = useState(0);
-  const Icon = skill.icon;
-  const stagger = (index % 3) * 0.1;
-
-  // عدّاد النسبة المتحرك — ينطلق عند ظهور البطاقة أثناء التمرير
-  useEffect(() => {
-    if (!isInView) return;
-    let frame = 0;
-    const delay = 300;
-    const duration = 1100;
-    const startTime = performance.now();
-
-    const tick = (now: number) => {
-      const elapsed = now - startTime - delay;
-      const progress = Math.min(Math.max(elapsed / duration, 0), 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplayLevel(Math.round(eased * skill.level));
-      if (progress < 1) frame = requestAnimationFrame(tick);
-    };
-
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [isInView, skill.level]);
-
-  return (
-    <motion.article
-      ref={cardRef}
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.25 }}
-      transition={{ duration: 0.55, delay: stagger, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ y: -6 }}
-      className="group relative flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur-md p-5 sm:p-6 overflow-hidden transition-colors duration-300 hover:border-white/25 hover:bg-white/[0.09]"
-    >
-      {/* توهّج ملوّن خلف البطاقة يظهر عند المرور */}
-      <div
-        className="absolute -top-14 -left-14 w-40 h-40 rounded-full blur-3xl opacity-0 group-hover:opacity-70 transition-opacity duration-500 pointer-events-none"
-        style={{ background: skill.glow }}
-      />
-
-      {/* أيقونة المهارة + نسبة الإتقان المتحركة */}
-      <div className="relative z-10 flex items-start justify-between gap-3">
-        <div
-          className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border border-white/15"
-          style={{
-            background: `linear-gradient(135deg, ${skill.color}33, ${skill.color2}1F)`,
-            color: skill.color2,
-            boxShadow: `0 8px 22px ${skill.color}2E`,
-          }}
-        >
-          <Icon size={20} />
-        </div>
-        <div
-          className="text-2xl sm:text-[26px] font-bold leading-none tracking-tight"
-          style={{ color: skill.color2 }}
-        >
-          {displayLevel}
-          <span className="text-sm font-semibold text-white/45">%</span>
-        </div>
-      </div>
-
-      <h3 className="relative z-10 text-base sm:text-lg font-semibold text-white leading-snug mt-1">
-        {skill.title}
-      </h3>
-
-      <p className="relative z-10 text-[13px] sm:text-sm text-white/60 leading-relaxed flex-1">
-        {skill.description}
-      </p>
-
-      {/* شريط التقدم — يمتلئ من اليمين إلى اليسار عند الظهور */}
-      <div className="relative z-10 mt-1">
-        <div className="mb-2 text-[11px] text-white/45 tracking-wide">
-          مستوى الإتقان
-        </div>
-        <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-          <motion.div
-            className="skill-fill h-full rounded-full"
-            style={{
-              background: `linear-gradient(90deg, ${skill.color}, ${skill.color2})`,
-              boxShadow: `0 0 14px ${skill.color}99`,
-            }}
-            initial={{ width: "0%" }}
-            whileInView={{ width: `${skill.level}%` }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{
-              duration: 1.1,
-              delay: 0.35 + stagger,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-          />
-        </div>
-      </div>
-    </motion.article>
-  );
-}
-
 /* ================================================================
  * الصفحة الرئيسية
  * ================================================================ */
@@ -258,9 +148,20 @@ function SkillCard({ skill, index }: { skill: Skill; index: number }) {
 export default function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioSrc, setAudioSrc] = useState<string>(BACKGROUND_AUDIO_URL);
+  const [currentSkillIndex, setCurrentSkillIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  /* ------------------------------------------------------------------
+   * عرض المهارات: مهارة واحدة تظهر ثم تختفي ويأتي دور التي بعدها
+   * ---------------------------------------------------------------- */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCurrentSkillIndex((prev) => (prev + 1) % skills.length);
+    }, SKILL_INTERVAL);
+    return () => clearTimeout(timer);
+  }, [currentSkillIndex]);
 
   /* ------------------------------------------------------------------
    * التشغيل التلقائي للصوت في الخلفية
@@ -270,7 +171,7 @@ export default function App() {
    *
    * الاستراتيجية المطبّقة هنا (كما هو مطلوب):
    *  1) نحاول تشغيل الملف فور تحميل الصفحة — نجاح إن سمح المتصفح
-   *     (مثل إعادة زيارة سابقًا تفاعل فيها).
+   *     (مثل زيارة سابقًا تفاعل فيها الزائر).
    *  2) في حال الرفض، ننتظر أول تفاعل حقيقي للزائر ثم نشغّل الصوت
    *     داخل معالج الحدث نفسه (هذا شرط iOS أيضًا)، ثم نزيل المستمعات.
    *
@@ -363,6 +264,9 @@ export default function App() {
     }
   };
 
+  const currentSkill = skills[currentSkillIndex];
+  const CurrentIcon = currentSkill.icon;
+
   return (
     <main
       onDragOver={(e) => e.preventDefault()}
@@ -389,7 +293,7 @@ export default function App() {
         className="hidden"
       />
 
-      {/* Background Video */}
+      {/* Background Video — لا يتأثر بالمربع: مثبّت بالكامل خلف كل شيء */}
       <video
         ref={videoRef}
         className="fixed inset-0 w-full h-full object-cover z-[0]"
@@ -400,11 +304,11 @@ export default function App() {
         playsInline
       />
 
-      {/* Atmospheric vignette */}
-      <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-black/50 via-transparent to-black/85 z-[1]" />
+      {/* Atmospheric vignette — مخفف بالأسفل لتبقى الخلفية ظاهرة خلف المربع */}
+      <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-black/50 via-transparent to-black/60 z-[1]" />
 
       {/* Content Wrapper */}
-      <div className="relative z-10 w-full max-w-7xl px-4 sm:px-6 lg:px-8 flex-1 flex flex-col justify-between pt-6 md:pt-10 pb-10">
+      <div className="relative z-10 w-full max-w-7xl px-3 sm:px-6 lg:px-8 flex-1 flex flex-col pt-4 md:pt-10 pb-24 sm:pb-10">
         {/* Top Header */}
         <header className="w-full flex items-center justify-between py-4">
           <div className="flex items-center gap-3">
@@ -459,80 +363,108 @@ export default function App() {
           </div>
         </header>
 
-        {/* Center / Upper Hero CTA Section */}
-        <div
-          id="contact"
-          className="flex-1 flex flex-col items-center justify-center my-16 md:my-28 scroll-mt-24"
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex flex-col items-center"
-          >
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="liquid-glass bg-white/10 hover:bg-emerald-500/20 active:scale-95 hover:scale-105 text-white px-9 sm:px-12 py-4.5 sm:py-5 rounded-3xl text-lg sm:text-2xl font-medium tracking-wide flex items-center justify-center gap-4 transition-all cursor-pointer shadow-2xl group border border-white/15"
-            >
-              <WhatsAppIcon
-                size={26}
-                className="text-emerald-400 group-hover:scale-110 transition-transform shrink-0"
-              />
-              <span>للتواصل معي عبر</span>
-            </a>
-          </motion.div>
-        </div>
+        {/* مساحة مرنة — تُبقي الفيديو الخلفي ظاهرًا دون تغطية */}
+        <div className="flex-1 min-h-8" aria-hidden="true" />
 
         {/* ==============================================================
-         * قسم المهارات (أسفل الصفحة) — بطاقات مع أشرطة تقدم بنسب
+         * قسم المهارات — مربع صغير يعرض مهارة واحدة تباعًا:
+         * تظهر (عنوان + وصف) ثم تختفي، ثم تظهر التي بعدها، وهكذا
          * ============================================================== */}
         <motion.section
           id="skills"
           dir="rtl"
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.12 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          className="liquid-glass w-full rounded-3xl p-6 sm:p-8 md:p-10 text-white mt-2 relative overflow-hidden backdrop-blur-xl border border-white/10"
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="liquid-glass w-full max-w-md sm:max-w-xl mx-auto rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden backdrop-blur-xl border border-white/10"
         >
-          {/* توهجات محيطة خفيفة */}
+          {/* توهج ملوّن خلف المربع يتبع لون المهارة الحالية */}
           <div
-            className="absolute -top-28 -left-28 w-72 h-72 rounded-full blur-3xl pointer-events-none opacity-25"
-            style={{ background: "rgba(99, 102, 241, 0.35)" }}
-          />
-          <div
-            className="absolute -bottom-24 -right-20 w-64 h-64 rounded-full blur-3xl pointer-events-none opacity-20"
-            style={{ background: "rgba(16, 185, 129, 0.35)" }}
+            className="absolute -top-20 -right-16 w-56 h-56 rounded-full blur-3xl pointer-events-none opacity-30 transition-colors duration-1000"
+            style={{ background: currentSkill.glow }}
           />
 
-          {/* عنوان القسم */}
-          <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-7 md:mb-9">
-            <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-2xl liquid-glass flex items-center justify-center text-white shadow-lg border border-white/10">
-                <Award size={18} />
+          {/* رأس المربع: العنوان + العدّاد + النقاط */}
+          <div className="relative z-10 flex items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl liquid-glass flex items-center justify-center text-white/90 border border-white/10 shadow-md">
+                <Award size={14} />
               </div>
-              <div>
-                <span className="block text-[10px] sm:text-[11px] uppercase tracking-[0.3em] text-white/40">
-                  Skills &amp; Expertise
+              <div className="leading-tight">
+                <span className="block text-[9px] uppercase tracking-[0.3em] text-white/40">
+                  Skills
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-semibold text-white mt-1 tracking-tight">
+                <h2 className="text-base sm:text-lg font-semibold text-white">
                   المهارات
                 </h2>
               </div>
             </div>
-            <p className="text-sm text-white/55 leading-relaxed max-w-sm text-start sm:text-end">
-              مهارات أتقنها بعناية، أضعها بين يديك لبناء تجربة رقمية مميزة
-              تجمع بين الجمال والأداء.
-            </p>
+
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-[11px] tracking-widest text-white/40">
+                0{currentSkillIndex + 1} / 0{skills.length}
+              </span>
+              <div className="flex items-center gap-1.5">
+                {skills.map((skill, index) => (
+                  <button
+                    key={skill.id}
+                    onClick={() => setCurrentSkillIndex(index)}
+                    aria-label={`المهارة ${index + 1}`}
+                    className={`h-1.5 rounded-full transition-all duration-500 cursor-pointer ${
+                      index === currentSkillIndex
+                        ? "w-6 bg-white"
+                        : "w-2 bg-white/25 hover:bg-white/50"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* شبكة البطاقات — أعمدة حسب حجم الشاشة */}
-          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-            {skills.map((skill, index) => (
-              <SkillCard key={skill.id} skill={skill} index={index} />
-            ))}
+          {/* المهارة الحالية: تظهر ثم تختفي فتليها التالية */}
+          <div className="relative z-10 min-h-[72px] sm:min-h-[96px] overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentSkill.id}
+                initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -14, filter: "blur(6px)" }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <div className="flex items-center gap-2.5 mb-1.5">
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border border-white/15"
+                    style={{
+                      background: `linear-gradient(135deg, ${currentSkill.color}33, ${currentSkill.color2}1F)`,
+                      color: currentSkill.color2,
+                    }}
+                  >
+                    <CurrentIcon size={15} />
+                  </div>
+                  <h3 className="text-[15px] sm:text-lg font-bold text-white leading-snug">
+                    {currentSkill.title}
+                  </h3>
+                </div>
+                <p className="text-xs sm:text-sm text-white/70 leading-relaxed pr-10">
+                  {currentSkill.description}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* شريط زمن رفيع يمتلئ خلال فترة العرض ثم تنتقل للمهارة التالية */}
+          <div className="relative z-10 mt-4 h-1 rounded-full bg-white/10 overflow-hidden">
+            <motion.div
+              key={`progress-${currentSkillIndex}`}
+              className="h-full rounded-full"
+              style={{
+                background: `linear-gradient(90deg, ${currentSkill.color}, ${currentSkill.color2})`,
+              }}
+              initial={{ width: "0%" }}
+              animate={{ width: "100%" }}
+              transition={{ duration: SKILL_INTERVAL / 1000, ease: "linear" }}
+            />
           </div>
         </motion.section>
 
@@ -542,9 +474,9 @@ export default function App() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-          className="liquid-glass w-full rounded-3xl p-6 sm:p-8 text-white/70 mt-5 relative overflow-hidden backdrop-blur-xl border border-white/10"
+          className="liquid-glass w-full max-w-md sm:max-w-none mx-auto rounded-2xl px-4 py-3 sm:p-6 text-white/70 mt-3 relative overflow-hidden backdrop-blur-xl border border-white/10"
         >
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10">
             {/* Brand Emblem */}
             <div className="flex items-center gap-3 text-white/80">
               <svg
@@ -611,7 +543,8 @@ export default function App() {
       </div>
 
       {/* ==============================================================
-       * زر "تواصل" ثابت وبارز — يقود مباشرة إلى وسيلة التواصل المحددة
+       * زر "تواصل" ثابت وبارز — بديل زر "للتواصل معي عبر" المحذوف
+       * يقود مباشرة إلى وسيلة التواصل المحددة (واتساب)
        * ============================================================== */}
       <motion.a
         href={WHATSAPP_URL}
@@ -623,7 +556,7 @@ export default function App() {
         initial={{ opacity: 0, y: 24, scale: 0.85 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ delay: 1.2, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-        className="group fixed bottom-5 left-5 sm:bottom-7 sm:left-7 z-50 flex items-center gap-2.5 rounded-full px-4 py-3 text-white font-medium text-sm sm:text-base shadow-2xl shadow-emerald-700/40 ring-1 ring-white/20 hover:ring-emerald-300/60 backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+        className="group fixed bottom-4 left-4 sm:bottom-7 sm:left-7 z-50 flex items-center gap-2 sm:gap-2.5 rounded-full px-3 py-2.5 sm:px-4 sm:py-3 text-white font-medium text-sm sm:text-base shadow-2xl shadow-emerald-700/40 ring-1 ring-white/20 hover:ring-emerald-300/60 backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
         style={{ background: "linear-gradient(135deg, #10b981 0%, #047857 100%)" }}
       >
         <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
