@@ -141,6 +141,46 @@ function WhatsAppIcon({
 }
 
 /* ================================================================
+ * الشعار السينمائي — K DESINGER بحركة دخول درامية ولمعة مستمرة
+ * ================================================================ */
+
+/**
+ * عنوان بأسلوب إعلانات الأفلام (trailer-style) ليلفت النظر فورًا:
+ * - الدخول: الحروف تتقارب من تباعد واسع + انقشاع ضبابي + صعود متتابع حرفًا حرفًا.
+ * - الاستمرار: لمعة ضوئية تعبر النص ذهابًا وإيابًا + توهّج نابض (CSS فقط في index.css).
+ */
+function CinematicBrand() {
+  const letters = "K DESINGER".split("");
+  return (
+    <motion.span
+      dir="ltr"
+      aria-label="K DESINGER"
+      className="brand-cinematic text-base sm:text-lg"
+      initial={{ opacity: 0, letterSpacing: "0.5em", filter: "blur(8px)" }}
+      animate={{ opacity: 1, letterSpacing: "0.12em", filter: "blur(0px)" }}
+      transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+    >
+      {letters.map((ch, i) => (
+        <motion.span
+          key={`${ch}-${i}`}
+          aria-hidden="true"
+          className="inline-block"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: 0.2 + i * 0.06,
+            duration: 0.7,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+        >
+          {ch === " " ? "\u00A0" : ch}
+        </motion.span>
+      ))}
+    </motion.span>
+  );
+}
+
+/* ================================================================
  * الصفحة الرئيسية
  * ================================================================ */
 
@@ -298,12 +338,15 @@ export default function App() {
               </svg>
             </div>
             <div className="flex flex-col">
-              <span className="text-white font-medium tracking-wider text-base sm:text-lg">
-                K DESINGER
-              </span>
-              <span className="text-[10px] sm:text-xs uppercase tracking-widest text-white/50">
+              <CinematicBrand />
+              <motion.span
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.1, duration: 0.6, ease: "easeOut" }}
+                className="text-[10px] sm:text-xs uppercase tracking-widest text-white/50"
+              >
                 Creative STUDIO
-              </span>
+              </motion.span>
             </div>
           </div>
 
@@ -349,6 +392,79 @@ export default function App() {
         {/* مساحة مرنة — تُبقي الفيديو الخلفي ظاهرًا دون تغطية */}
         <div className="flex-1 min-h-8" aria-hidden="true" />
 
+        {/* Bottom Footer: Brand Emblem & Social Media Icons */}
+        <motion.footer
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="liquid-glass w-full max-w-md sm:max-w-none mx-auto rounded-2xl px-4 py-3 sm:p-6 text-white/70 relative overflow-hidden backdrop-blur-xl border border-white/10"
+        >
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10">
+            {/* Brand Emblem */}
+            <div className="flex items-center gap-3 text-white/80">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 256 256"
+                fill="currentColor"
+              >
+                <path d="M 4.688 136 C 68.373 136 120 187.627 120 251.312 C 120 252.883 119.967 254.445 119.905 256 L 0 256 L 0 136.096 C 1.555 136.034 3.117 136 4.688 136 Z M 251.312 136 C 252.883 136 254.445 136.034 256 136.096 L 256 256 L 136.095 256 C 136.032 254.438 136.001 252.875 136 251.312 C 136 187.627 187.627 136 251.312 136 Z M 119.905 0 C 119.967 1.555 120 3.117 120 4.688 C 120 68.373 68.373 120 4.687 120 C 3.117 120 1.555 119.967 0 119.905 L 0 0 Z M 256 119.905 C 254.445 119.967 252.883 120 251.312 120 C 187.627 120 136 68.373 136 4.687 C 136 3.117 136.033 1.555 136.095 0 L 256 0 Z" />
+              </svg>
+            </div>
+
+            {/* Social Media Icons */}
+            <div className="flex items-center gap-5 text-white">
+              <a
+                href="https://tiktok.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="opacity-70 hover:opacity-100 transition-colors hover:text-white p-1"
+                aria-label="Music2"
+              >
+                <Music2 size={18} />
+              </a>
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="opacity-70 hover:opacity-100 transition-colors hover:text-white p-1"
+                aria-label="Facebook"
+              >
+                <Facebook size={18} />
+              </a>
+              <a
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="opacity-70 hover:opacity-100 transition-colors hover:text-white p-1"
+                aria-label="Twitter"
+              >
+                <Twitter size={18} />
+              </a>
+              <a
+                href="https://youtube.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="opacity-70 hover:opacity-100 transition-colors hover:text-white p-1"
+                aria-label="Youtube"
+              >
+                <Youtube size={18} />
+              </a>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="opacity-70 hover:opacity-100 transition-colors hover:text-white p-1"
+                aria-label="Instagram"
+              >
+                <Instagram size={18} />
+              </a>
+            </div>
+          </div>
+        </motion.footer>
+
         {/* ==============================================================
          * قسم المهارات — مربع صغير يعرض مهارة واحدة تباعًا:
          * تظهر (عنوان + وصف) ثم تختفي، ثم تظهر التي بعدها، وهكذا
@@ -359,8 +475,8 @@ export default function App() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="liquid-glass w-full max-w-md sm:max-w-xl mx-auto rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden backdrop-blur-xl border border-white/10"
+          transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+          className="liquid-glass w-full max-w-md sm:max-w-xl mx-auto mt-3 rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden backdrop-blur-xl border border-white/10"
         >
           {/* توهج ملوّن خلف المربع يتبع لون المهارة الحالية */}
           <div
@@ -450,79 +566,6 @@ export default function App() {
             />
           </div>
         </motion.section>
-
-        {/* Bottom Footer: Brand Emblem & Social Media Icons */}
-        <motion.footer
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-          className="liquid-glass w-full max-w-md sm:max-w-none mx-auto rounded-2xl px-4 py-3 sm:p-6 text-white/70 mt-3 relative overflow-hidden backdrop-blur-xl border border-white/10"
-        >
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10">
-            {/* Brand Emblem */}
-            <div className="flex items-center gap-3 text-white/80">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 256 256"
-                fill="currentColor"
-              >
-                <path d="M 4.688 136 C 68.373 136 120 187.627 120 251.312 C 120 252.883 119.967 254.445 119.905 256 L 0 256 L 0 136.096 C 1.555 136.034 3.117 136 4.688 136 Z M 251.312 136 C 252.883 136 254.445 136.034 256 136.096 L 256 256 L 136.095 256 C 136.032 254.438 136.001 252.875 136 251.312 C 136 187.627 187.627 136 251.312 136 Z M 119.905 0 C 119.967 1.555 120 3.117 120 4.688 C 120 68.373 68.373 120 4.687 120 C 3.117 120 1.555 119.967 0 119.905 L 0 0 Z M 256 119.905 C 254.445 119.967 252.883 120 251.312 120 C 187.627 120 136 68.373 136 4.687 C 136 3.117 136.033 1.555 136.095 0 L 256 0 Z" />
-              </svg>
-            </div>
-
-            {/* Social Media Icons */}
-            <div className="flex items-center gap-5 text-white">
-              <a
-                href="https://tiktok.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="opacity-70 hover:opacity-100 transition-colors hover:text-white p-1"
-                aria-label="Music2"
-              >
-                <Music2 size={18} />
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="opacity-70 hover:opacity-100 transition-colors hover:text-white p-1"
-                aria-label="Facebook"
-              >
-                <Facebook size={18} />
-              </a>
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="opacity-70 hover:opacity-100 transition-colors hover:text-white p-1"
-                aria-label="Twitter"
-              >
-                <Twitter size={18} />
-              </a>
-              <a
-                href="https://youtube.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="opacity-70 hover:opacity-100 transition-colors hover:text-white p-1"
-                aria-label="Youtube"
-              >
-                <Youtube size={18} />
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="opacity-70 hover:opacity-100 transition-colors hover:text-white p-1"
-                aria-label="Instagram"
-              >
-                <Instagram size={18} />
-              </a>
-            </div>
-          </div>
-        </motion.footer>
       </div>
 
     </main>
