@@ -67,51 +67,54 @@
 }
 
 /* ---------------------------------------------------------------
-   الشعار السينمائي: شعاع لمعة ساخن يعبر النص + توهّج نابض قوي
+   الشعار السينمائي
+   - الحاوية (.brand-cinematic): حركة الدخول فقط، شفافة بلا خلفية.
+   - كل حرف (.brand-letter): تدرّج لوني فاتح دائم الظهور + موجة لمعة
+     متتابعة عبر الحروف + توهّج نابض عبر drop-shadow (الآمن مع
+     background-clip:text — ممنوع text-shadow هنا لأنه يُخفي النص).
    --------------------------------------------------------------- */
 .brand-cinematic {
   display: inline-block;
   font-weight: 800;
-  line-height: 1.2;
+  line-height: 1.25;
+}
+.brand-letter {
+  display: inline-block;
   background: linear-gradient(
     100deg,
-    #e0e7ff 12%,
-    #a78bfa 32%,
+    #c4b5fd 5%,
+    #a78bfa 30%,
     #ffffff 45%,
-    #ffffff 52%,
-    #67e8f9 58%,
-    #a78bfa 68%,
-    #e0e7ff 88%
+    #f0fdff 50%,
+    #ffffff 55%,
+    #67e8f9 70%,
+    #22d3ee 95%
   );
-  background-size: 300% 100%;
+  background-size: 280% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
   animation:
-    brand-sheen 4s ease-in-out infinite,
+    brand-sheen 3.6s ease-in-out infinite,
     brand-glow 2.8s ease-in-out infinite;
 }
 @keyframes brand-sheen {
   0%,
   100% {
-    background-position: 115% 0;
+    background-position: 120% 0;
   }
   50% {
-    background-position: -15% 0;
+    background-position: -20% 0;
   }
 }
 @keyframes brand-glow {
   0%,
   100% {
-    text-shadow:
-      0 0 10px rgba(139, 92, 246, 0.2),
-      0 0 34px rgba(139, 92, 246, 0.12);
+    filter: drop-shadow(0 0 5px rgba(139, 92, 246, 0.35));
   }
   50% {
-    text-shadow:
-      0 0 22px rgba(103, 232, 249, 0.55),
-      0 0 60px rgba(103, 232, 249, 0.25);
+    filter: drop-shadow(0 0 13px rgba(103, 232, 249, 0.65));
   }
 }
 /* خط ضوئي تحت الاسم بأسلوب عناوين الأفلام */
@@ -131,8 +134,17 @@
   );
   box-shadow: 0 0 12px rgba(139, 92, 246, 0.65);
 }
+/* احتياط للمتصفحات القديمة جدًا: نص أبيض صريح بدل التدرّج */
+@supports not ((background-clip: text) or (-webkit-background-clip: text)) {
+  .brand-letter {
+    background: none;
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+    animation: none;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .brand-cinematic {
+  .brand-letter {
     animation: none;
   }
 }

@@ -141,10 +141,12 @@ function WhatsAppIcon({
 
 /**
  * عنوان بأسلوب إعلانات الأفلام (trailer-style) ليلفت النظر فورًا:
- * - الدخول: تكبير + تقارب الحروف من تباعد واسع + انقشاع ضبابي + انقلاب
- *   ثلاثي الأبعاد لكل حرف على حدة، ثم خط ضوئي يُرسم تحت الاسم.
- * - الاستمرار: شعاع لمعة ساخن يعبر النص + توهّج نابض (CSS فقط في index.css).
- * - تفاعل: تكبير خفيف عند مرور المؤشر فوق الاسم.
+ * - الدخول: تكبير + تقارب الحروف من تباعد واسع + انقلاب ثلاثي الأبعاد
+ *   لكل حرف على حدة، ثم خط ضوئي يُرسم تحت الاسم.
+ * - الاستمرار: موجة لمعة تعبر الحروف بالتتابع + توهّج نابض (CSS فقط).
+ * - ملاحظة تقنية: التدرّج اللوني على كل حرف على حدة (وليس الحاوية)،
+ *   والتوهّج عبر drop-shadow بدل text-shadow — لأن text-shadow مع
+ *   background-clip:text يُخفي النص في Chrome/Safari.
  */
 function CinematicBrand() {
   const letters = "K DESINGER".split("");
@@ -153,8 +155,8 @@ function CinematicBrand() {
       dir="ltr"
       aria-label="K DESINGER"
       className="brand-cinematic text-lg sm:text-2xl"
-      initial={{ opacity: 0, letterSpacing: "0.6em", filter: "blur(10px)", scale: 1.18 }}
-      animate={{ opacity: 1, letterSpacing: "0.1em", filter: "blur(0px)", scale: 1 }}
+      initial={{ opacity: 0, letterSpacing: "0.6em", scale: 1.18 }}
+      animate={{ opacity: 1, letterSpacing: "0.1em", scale: 1 }}
       transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
       whileHover={{ scale: 1.04, transition: { duration: 0.25, ease: "easeOut" } }}
     >
@@ -172,7 +174,13 @@ function CinematicBrand() {
             ease: [0.16, 1, 0.3, 1],
           }}
         >
-          {ch === " " ? "\u00A0" : ch}
+          {/* الحرف المرئي: تدرّج خاص به + إزاحة سالبة تجعل اللمعة موجة دائمة */}
+          <span
+            className="brand-letter"
+            style={{ animationDelay: `${-i * 0.35}s, 0s` }}
+          >
+            {ch === " " ? "\u00A0" : ch}
+          </span>
         </motion.span>
       ))}
     </motion.span>
