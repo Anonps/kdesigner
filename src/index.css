@@ -30,6 +30,42 @@
   position: relative;
   overflow: hidden;
 }
+/* ---------------------------------------------------------------
+   شريط تقدم المهارات: لمعة خفيفة تتحرك فوق النسبة الممتلئة
+   --------------------------------------------------------------- */
+.skill-fill {
+  position: relative;
+  overflow: hidden;
+}
+.skill-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+  animation: skill-shine 2.4s ease-in-out infinite;
+}
+@keyframes skill-shine {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skill-fill::after {
+    animation: none;
+  }
+}
+
 .liquid-glass::before {
   content: '';
   position: absolute;
